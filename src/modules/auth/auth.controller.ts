@@ -12,7 +12,7 @@ export class AuthController {
   @Post('login')
   async signIn(@Req() req, @Body() data: AuthLoginDto) {
     const newData = {
-      username: data.username,
+      email: data.email,
       password: data.password,
     };
     try {

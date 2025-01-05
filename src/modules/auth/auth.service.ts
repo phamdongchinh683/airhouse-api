@@ -14,7 +14,7 @@ export class AuthService {
   ) {}
 
   async signIn(data: AuthLoginDto): Promise<AuthJwtDto> {
-    const user = await this.userService.findByUsername(data.username);
+    const user = await this.userService.findByEmail(data.email);
 
     const compare = await comparePassword(data.password, user.password);
     if (!user || !compare) {
@@ -28,7 +28,6 @@ export class AuthService {
   async register(data: AuthSignUpDto): Promise<string> {
     const password = await hashPassword(data.password);
     const newUser = {
-      username: data.username,
       password: password,
       email: data.email,
       roles: data.roles,
