@@ -7,25 +7,18 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { database } from './configs/database.config';
 import { configAppModule } from './configs/env.config';
 import { JwtConfig } from './configs/jwt.config';
 import { appControllers } from './controllers/app.controller';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
+import { DrizzleModule } from './modules/drizzle/drizzle.module';
 import { UserModule } from './modules/user/user.module';
 import { appProviders } from './providers/app.provider';
 dotenv.config({ debug: false });
 
 @Module({
-  imports: [
-    TypeOrmModule.forRoot(database()),
-    configAppModule,
-    JwtConfig,
-    UserModule,
-    AuthModule,
-  ],
+  imports: [configAppModule, JwtConfig, UserModule, AuthModule, DrizzleModule],
   controllers: [...appControllers],
   providers: [
     ...appProviders,

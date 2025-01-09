@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Ip, Post, Req } from '@nestjs/common';
 import { ResponseData } from 'src/global/globalClass';
 import { httpMessage, httpStatus } from 'src/global/globalEnum';
 import { AuthService } from './auth.service';
@@ -9,14 +9,19 @@ import { AuthSignUpDto } from './dto/auth.signup.dto';
 @Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
   @Post('login')
-  async signIn(@Req() req, @Body() data: AuthLoginDto) {
+  async signIn(
+    @Req() req: Request,
+    @Body() data: AuthLoginDto,
+    @Ip() ip: string,
+  ) {
     const newData = {
       email: data.email,
       password: data.password,
     };
     try {
-      const user = await this.authService.signIn(newData);
+      const user = await this.authService.signIn(newData, req, ip);
       return new ResponseData<AuthJwtDto>(
         user,
         httpStatus.SUCCESS,

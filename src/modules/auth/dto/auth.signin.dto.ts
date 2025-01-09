@@ -1,11 +1,10 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class AuthLoginDto {
-  @IsString()
-  @IsEmail()
+  @IsNotEmpty({ message: 'email must not be empty' })
+  @IsEmail({}, { message: 'Please provide a valid email' })
   email: string;
-
   @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters' })
+  @Length(9, 20, { message: 'password must be between 9 and 20 characters' })
   password: string;
 }

@@ -12,4 +12,6 @@ export enum Role {
   User = 'user',
   Admin = 'admin',
   Sale = 'sale',
+  ProjectManagement = 'project_management',
+  CTV = 'ctv',
 }
