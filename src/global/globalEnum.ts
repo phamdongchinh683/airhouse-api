@@ -15,3 +15,9 @@ export enum Role {
   ProjectManagement = 'project_management',
   CTV = 'ctv',
 }
+
+export enum Status {
+  Pending = 'pending',
+  Accept = 'accept',
+  Refuse = 'refuse',
+}

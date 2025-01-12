@@ -20,6 +20,7 @@ export const user = pgTable(
     role: roleEnum.notNull(),
     download_count: integer(),
     copy_count: integer(),
+    employee_code: varchar({ length: 20 }),
     ...timestamps,
   },
   (table) => {

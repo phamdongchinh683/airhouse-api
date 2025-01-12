@@ -1,8 +1,9 @@
-import { boolean, index, pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
+import { index, pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 import { timestamps } from 'src/helpers/columns.helper';
+import { statusEnum } from 'src/helpers/enum.helper';
 import { user } from './user.schema';
 
-export const approvedDevices = pgTable(
+export const approvedDevice = pgTable(
   'approved_devices',
   {
     id: uuid('id').primaryKey(),
@@ -11,10 +12,8 @@ export const approvedDevices = pgTable(
       .notNull()
       .notNull(),
     device_info: varchar({ length: 255 }).notNull(),
-    status: boolean().notNull(),
-    approved_by: uuid()
-      .references(() => user.id)
-      .notNull(),
+    status: statusEnum.notNull(),
+    approved_by: uuid().references(() => user.id),
     ...timestamps,
   },
   (table) => {

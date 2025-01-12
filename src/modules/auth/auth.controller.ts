@@ -17,12 +17,12 @@ export class AuthController {
     @Ip() ip: string,
   ) {
     const newData = {
-      email: data.email,
+      email: data.email.toLowerCase(),
       password: data.password,
     };
     try {
       const user = await this.authService.signIn(newData, req, ip);
-      return new ResponseData<AuthJwtDto>(
+      return new ResponseData<AuthJwtDto | string>(
         user,
         httpStatus.SUCCESS,
         httpMessage.SUCCESS,
@@ -45,8 +45,10 @@ export class AuthController {
         httpMessage.SUCCESS,
       );
     } catch (e: any) {
+      const unique = e.constraint.split('_')[1];
+      const result = unique + ' exited';
       return new ResponseData<string>(
-        e.message || 'Authentication failed',
+        result,
         httpStatus.ERROR,
         httpMessage.ERROR,
       );

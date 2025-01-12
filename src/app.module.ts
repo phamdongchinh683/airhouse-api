@@ -10,15 +10,25 @@ import { APP_PIPE } from '@nestjs/core';
 import { configAppModule } from './configs/env.config';
 import { JwtConfig } from './configs/jwt.config';
 import { appControllers } from './controllers/app.controller';
+import { AuthGateWayModule } from './gateway/auth/auth.gateway.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
 import { DrizzleModule } from './modules/drizzle/drizzle.module';
+import { MailModule } from './modules/mail/mail.module';
 import { UserModule } from './modules/user/user.module';
 import { appProviders } from './providers/app.provider';
 dotenv.config({ debug: false });
 
 @Module({
-  imports: [configAppModule, JwtConfig, UserModule, AuthModule, DrizzleModule],
+  imports: [
+    configAppModule,
+    JwtConfig,
+    UserModule,
+    AuthModule,
+    DrizzleModule,
+    MailModule,
+    AuthGateWayModule,
+  ],
   controllers: [...appControllers],
   providers: [
     ...appProviders,
