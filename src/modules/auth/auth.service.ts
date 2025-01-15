@@ -99,7 +99,7 @@ export class AuthService {
           token: this.jwtService.sign(payload),
         };
       default:
-        await this.mailService.sendRequestDevice(user[0].id);
+        await this.mailService.sendRequestDevice(data.email);
         return 'Device confirmation requested';
     }
   }
