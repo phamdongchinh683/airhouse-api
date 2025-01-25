@@ -123,4 +123,23 @@ export class AuthController {
       );
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Post('refresh-token')
+  async refreshToken(@Req() req: Request) {
+    try {
+      const result = await this.authService.refreshToken(req['token']);
+      return new ResponseData<AuthJwtDto | string>(
+        result,
+        httpStatus.SUCCESS,
+        httpMessage.SUCCESS,
+      );
+    } catch (e: any) {
+      return new ResponseData<string>(
+        e.message,
+        httpStatus.ERROR,
+        httpMessage.ERROR,
+      );
+    }
+  }
 }

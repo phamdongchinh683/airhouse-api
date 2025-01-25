@@ -1,5 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Cache } from 'cache-manager';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Status } from 'src/global/globalEnum';
@@ -7,6 +9,7 @@ import { comparePassword, hashPassword } from 'src/helpers/hash.helper';
 import { randomPassword } from 'src/helpers/random.password.helper';
 import { DrizzleAsyncProvider } from 'src/providers/drizzle.provider';
 import { user } from 'src/schema/user.schema';
+import { jwtConstants } from 'src/utils/constants.util';
 import { v4 as uuidv4 } from 'uuid';
 import * as schemas from '../../schema/schema';
 import { DeviceService } from '../device/device.service';
@@ -14,6 +17,7 @@ import { DeviceCreationDto } from '../device/dto/device.creation.dto';
 import { DeviceStatusDto } from '../device/dto/device.status.dto';
 import { MailService } from '../mail/mail.service';
 import { AuthJwtDto } from './dto/auth.jwt.dto';
+import { AuthPayLoad } from './dto/auth.payload.dto';
 import { AuthRecordDto } from './dto/auth.record.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
@@ -22,6 +26,7 @@ import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @Inject(DrizzleAsyncProvider)
     private database: NodePgDatabase<typeof schemas>,
     private jwtService: JwtService,
@@ -97,9 +102,12 @@ export class AuthService {
       case 'accept':
         const { id, role } = user[0];
         const payload = { sub: id, role: role };
+        const accessToken = this.jwtService.sign(payload);
+
         return {
-          token: this.jwtService.sign(payload),
+          token: accessToken,
         };
+
       default:
         await this.mailService.sendRequestDevice(data.email);
         return 'Device confirmation requested';
@@ -187,5 +195,40 @@ export class AuthService {
     } else {
       return 'There are no changes to your password';
     }
+  }
+
+  async refreshToken(token: string): Promise<AuthJwtDto | string> {
+    if (!token) {
+      return `Didn't receive any tokens`;
+    }
+
+    const payload: AuthPayLoad = await this.jwtService.verifyAsync(token, {
+      secret: jwtConstants.secret,
+    });
+    if (!payload) throw new ForbiddenException('Token is not invalid');
+
+    const user = await this.database
+      .select({
+        id: schemas.user.id,
+        password: schemas.user.password,
+        role: schemas.user.role,
+      })
+      .from(schemas.user)
+      .where(eq(schemas.user.id, payload.sub));
+
+    if (!user) {
+      throw new ForbiddenException('User not found for the given token.');
+    }
+
+    const data: AuthPayLoad = {
+      sub: user[0].id,
+      role: user[0].role,
+    };
+
+    const newAccessToken = this.jwtService.sign(data);
+
+    return {
+      token: newAccessToken,
+    };
   }
 }
