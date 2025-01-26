@@ -1,20 +1,21 @@
 import * as dotenv from 'dotenv';
 
+import { CacheModule } from '@nestjs/cache-manager';
 import {
   MiddlewareConsumer,
   Module,
   NestModule,
   RequestMethod,
-  ValidationPipe,
 } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
 import { configAppModule } from './configs/env.config';
 import { JwtConfig } from './configs/jwt.config';
+import { RedisOptions } from './configs/redis.config';
 import { appControllers } from './controllers/app.controller';
-import { AuthGateWayModule } from './gateway/auth/auth.gateway.module';
+import { ChatGateWayModule } from './gateway/chat/chat.gateway.module';
 import { ForgotPasswordMiddleware } from './middlewares/forgot-password.middleware';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
+import { ConversationModule } from './modules/conversation/conversation.module';
 import { DrizzleModule } from './modules/drizzle/drizzle.module';
 import { MailModule } from './modules/mail/mail.module';
 import { UserModule } from './modules/user/user.module';
@@ -23,22 +24,19 @@ dotenv.config({ debug: false });
 
 @Module({
   imports: [
+    CacheModule.register({ isGlobal: true }),
+    CacheModule.registerAsync(RedisOptions),
     configAppModule,
     JwtConfig,
     UserModule,
     AuthModule,
     DrizzleModule,
     MailModule,
-    AuthGateWayModule,
+    ConversationModule,
+    ChatGateWayModule,
   ],
   controllers: [...appControllers],
-  providers: [
-    ...appProviders,
-    {
-      provide: APP_PIPE,
-      useClass: ValidationPipe,
-    },
-  ],
+  providers: [...appProviders],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

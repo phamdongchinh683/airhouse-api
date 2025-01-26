@@ -159,6 +159,28 @@ export class AuthService {
     }
   }
 
+  async findUserById(userId: string): Promise<AuthPayLoad> {
+    const cachedData: AuthPayLoad = await this.cacheManager.get(`${userId}`);
+    if (cachedData) {
+      return cachedData;
+    }
+    const result = await this.database
+      .select({
+        sub: schemas.user.id,
+        role: schemas.user.role,
+      })
+      .from(schemas.user)
+      .where(eq(schemas.user.id, userId))
+      .execute();
+
+    const user = result[0];
+
+    if (user) {
+      await this.cacheManager.set(`${userId}`, user, 3600);
+    }
+    return user;
+  }
+
   async updatePassword(
     data: AuthUpdatePasswordDto,
     userId: string,

@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { swaggerConfig } from './configs/swagger.config';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
@@ -11,6 +12,7 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new LoggerInterceptor());
+  app.use(helmet());
 
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);
