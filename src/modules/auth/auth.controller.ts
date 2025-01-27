@@ -13,6 +13,7 @@ import { httpMessage, httpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { AuthJwtDto } from './dto/auth.jwt.dto';
+import { AuthLogout } from './dto/auth.logout.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
 import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
@@ -124,12 +125,37 @@ export class AuthController {
     }
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post('refresh-token')
   async refreshToken(@Req() req: Request) {
     try {
       const result = await this.authService.refreshToken(req['token']);
       return new ResponseData<AuthJwtDto | string>(
+        result,
+        httpStatus.SUCCESS,
+        httpMessage.SUCCESS,
+      );
+    } catch (e: any) {
+      return new ResponseData<string>(
+        e.message,
+        httpStatus.ERROR,
+        httpMessage.ERROR,
+      );
+    }
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  async logout(@Req() req: Request) {
+    try {
+      const data: AuthLogout = {
+        userId: req['user'].sub,
+        token: req['token'],
+      };
+      const result = await this.authService.logout(data);
+      return new ResponseData<string>(
         result,
         httpStatus.SUCCESS,
         httpMessage.SUCCESS,

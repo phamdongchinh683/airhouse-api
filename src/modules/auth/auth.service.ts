@@ -17,6 +17,7 @@ import { DeviceCreationDto } from '../device/dto/device.creation.dto';
 import { DeviceStatusDto } from '../device/dto/device.status.dto';
 import { MailService } from '../mail/mail.service';
 import { AuthJwtDto } from './dto/auth.jwt.dto';
+import { AuthLogout } from './dto/auth.logout.dto';
 import { AuthPayLoad } from './dto/auth.payload.dto';
 import { AuthRecordDto } from './dto/auth.record.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
@@ -50,6 +51,7 @@ export class AuthService {
       .from(schemas.user)
       .where(eq(schemas.user.email, data.email));
 
+    console.log(user);
     if (!user[0]) {
       return 'This email does not exist';
     }
@@ -229,22 +231,15 @@ export class AuthService {
     });
     if (!payload) throw new ForbiddenException('Token is not invalid');
 
-    const user = await this.database
-      .select({
-        id: schemas.user.id,
-        password: schemas.user.password,
-        role: schemas.user.role,
-      })
-      .from(schemas.user)
-      .where(eq(schemas.user.id, payload.sub));
+    const user = await this.findUserById(payload.sub);
 
     if (!user) {
       throw new ForbiddenException('User not found for the given token.');
     }
 
     const data: AuthPayLoad = {
-      sub: user[0].id,
-      role: user[0].role,
+      sub: user.sub,
+      role: user.role,
     };
 
     const newAccessToken = this.jwtService.sign(data);
@@ -252,5 +247,25 @@ export class AuthService {
     return {
       token: newAccessToken,
     };
+  }
+
+  async logout(data: AuthLogout): Promise<string> {
+    const value = {
+      id: uuidv4(),
+      user_id: data.userId,
+      token: data.token,
+    };
+    await this.database.insert(schemas.token).values(value);
+    return 'logged out';
+  }
+
+  async checkTokenAccount(token: string): Promise<{ token: string }[]> {
+    return await this.database
+      .select({
+        token: schemas.token.token,
+      })
+      .from(schemas.token)
+      .where(eq(schemas.token.token, token))
+      .execute();
   }
 }
