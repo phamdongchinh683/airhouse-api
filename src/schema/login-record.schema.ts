@@ -17,7 +17,7 @@ export const loginRecord = pgTable(
     return {
       idIdx: index('login_record_id_idx').on(table.id),
       userIdIdx: index('login_record_user_id_idx').on(table.user_id),
-      createdAtIdx: index('login_record_created_at_idx').on(table.create_at),
+      createdAtIdx: index('login_record_created_at_idx').on(table.created_at),
     };
   },
 );

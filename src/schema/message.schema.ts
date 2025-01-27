@@ -23,7 +23,7 @@ export const message = pgTable(
       messageConversationIdIdx: index('message_conversation_id_idx').on(
         table.conversation_id,
       ),
-      createdAtIdx: index('message_created_at_idx').on(table.create_at),
+      createdAtIdx: index('message_created_at_idx').on(table.created_at),
     };
   },
 );

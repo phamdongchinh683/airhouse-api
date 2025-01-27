@@ -22,7 +22,7 @@ export const approvedDevice = pgTable(
       userIdIdx: index('approved_device_user_id_idx').on(table.user_id),
       approveIdIdx: index('approve_id_idx').on(table.approved_by),
       statusIdx: index('approved_device_status_idx').on(table.status),
-      createAtIdx: index('approved_device_created_at_idx').on(table.create_at),
+      createAtIdx: index('approved_device_created_at_idx').on(table.created_at),
     };
   },
 );

@@ -1,6 +1,4 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { Cache } from 'cache-manager';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
 import { DrizzleAsyncProvider } from 'src/providers/drizzle.provider';
@@ -10,8 +8,6 @@ import { UserConversation } from './dto/user-conversation.dto';
 @Injectable()
 export class ConversationService {
   constructor(
-    @Inject(CACHE_MANAGER)
-    private cacheManager: Cache,
     @Inject(DrizzleAsyncProvider)
     private database: NodePgDatabase<typeof schemas>,
   ) {}

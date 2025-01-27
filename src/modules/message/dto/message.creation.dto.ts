@@ -6,10 +6,10 @@ export class MessageCreationDto {
   userId: string;
   @ApiProperty()
   @IsArray()
-  messages: MessageList[];
+  messages: Message[];
 }
 
-export class MessageList {
+export class Message {
   @ApiProperty()
   @IsString()
   conversationId: string;

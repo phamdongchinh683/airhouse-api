@@ -18,7 +18,9 @@ export const conversation = pgTable(
       idIdx: index('conversation_id_idx').on(table.id),
       userIdIdx: index('conversation_user_id_idx').on(table.user_id),
       isGroupIx: index('conversation_is_group_idx').on(table.is_group),
-      createdAtIdx: index('conversation_id_created_at_idx').on(table.create_at),
+      createdAtIdx: index('conversation_id_created_at_idx').on(
+        table.created_at,
+      ),
     };
   },
 );

@@ -9,8 +9,8 @@ import { MessageService } from 'src/modules/message/message.service';
 import { UserService } from 'src/modules/user/user.service';
 
 export const appProviders = [
-  UserService,
   AuthService,
+  UserService,
   DeviceService,
   MailService,
   MessageService,

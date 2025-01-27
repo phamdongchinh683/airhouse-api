@@ -23,7 +23,6 @@ export class MessageService {
       conversation_id: message.conversationId,
       message_text: message.messageText,
     }));
-    console.log(messages);
 
     return await this.database.insert(schemas.message).values(messages);
   }
@@ -34,11 +33,11 @@ export class MessageService {
         id: schemas.message.id,
         userEmail: schemas.user.email,
         messageText: schemas.message.message_text,
-        createdAt: schemas.message.create_at,
+        createdAt: schemas.message.created_at,
       })
       .from(schemas.message)
       .leftJoin(schemas.user, eq(schemas.user.id, schemas.message.user_id))
       .where(eq(schemas.message.conversation_id, conversationId))
-      .orderBy(schemas.message.create_at);
+      .orderBy(schemas.message.created_at);
   }
 }

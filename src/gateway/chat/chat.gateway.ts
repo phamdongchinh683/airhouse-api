@@ -14,8 +14,8 @@ import { WsGuard } from 'src/guards/ws.guard';
 import { ConversationService } from 'src/modules/conversation/conversation.service';
 import { UserConversation } from 'src/modules/conversation/dto/user-conversation.dto';
 import {
+  Message,
   MessageCreationDto,
-  MessageList,
 } from 'src/modules/message/dto/message.creation.dto';
 import { MessageService } from 'src/modules/message/message.service';
 
@@ -47,7 +47,7 @@ export class ChatGateWay implements OnModuleInit {
       console.log(`Client connected: ${socket.id}`);
       socket.on('disconnect', async () => {
         const userId = this.getUserId(socket);
-        const cachedMessages: MessageList[] = await this.cacheManager.get(
+        const cachedMessages: Message[] = await this.cacheManager.get(
           socket.id,
         );
         const data: MessageCreationDto = {
@@ -67,12 +67,12 @@ export class ChatGateWay implements OnModuleInit {
 
   @SubscribeMessage('newMessage')
   async newMessage(
-    @MessageBody() message: MessageList,
+    @MessageBody() message: Message,
     @ConnectedSocket() socket: Socket,
   ): Promise<void> {
     try {
       const userId = this.getUserId(socket);
-      const cachedMessages: MessageList[] =
+      const cachedMessages: Message[] =
         (await this.cacheManager.get(socket.id)) || [];
 
       cachedMessages.push(message);
