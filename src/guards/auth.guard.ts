@@ -1,20 +1,18 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   CanActivate,
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Cache } from 'cache-manager';
 import { Request } from 'express';
+import { AuthService } from 'src/modules/auth/auth.service';
 import { jwtConstants } from 'src/utils/constants.util';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private authService: AuthService,
     private jwtService: JwtService,
   ) {}
 
@@ -23,7 +21,16 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Did not receive token');
+    }
+
+    const tokenAccount = await this.authService.checkTokenAccount(token);
+
+    if (tokenAccount.length > 0) {
+      if (token === tokenAccount[0].token) {
+        throw new UnauthorizedException('Token is valid');
+      }
+      return;
     }
 
     try {
