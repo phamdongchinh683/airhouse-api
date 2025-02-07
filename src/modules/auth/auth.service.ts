@@ -51,7 +51,6 @@ export class AuthService {
       .from(schemas.user)
       .where(eq(schemas.user.email, data.email));
 
-    console.log(user);
     if (!user[0]) {
       return 'This email does not exist';
     }

@@ -15,8 +15,11 @@ import { ChatGateWayModule } from './gateway/chat/chat.gateway.module';
 import { ForgotPasswordMiddleware } from './middlewares/forgot-password.middleware';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
+import { AwsModule } from './modules/aws/aws.module';
+import { BuildingModule } from './modules/building/building.module';
 import { ConversationModule } from './modules/conversation/conversation.module';
 import { DrizzleModule } from './modules/drizzle/drizzle.module';
+import { HistoryModule } from './modules/history/history.module';
 import { MailModule } from './modules/mail/mail.module';
 import { UserModule } from './modules/user/user.module';
 import { appProviders } from './providers/app.provider';
@@ -32,8 +35,11 @@ dotenv.config({ debug: false });
     AuthModule,
     DrizzleModule,
     MailModule,
+    AwsModule,
     ConversationModule,
     ChatGateWayModule,
+    BuildingModule,
+    HistoryModule,
   ],
   controllers: [...appControllers],
   providers: [...appProviders],

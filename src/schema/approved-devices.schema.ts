@@ -8,12 +8,11 @@ export const approvedDevice = pgTable(
   {
     id: uuid('id').primaryKey(),
     user_id: uuid()
-      .references(() => user.id)
-      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     device_info: varchar({ length: 255 }).notNull(),
     status: statusEnum.notNull(),
-    approved_by: uuid().references(() => user.id),
+    approved_by: uuid().references(() => user.id, { onDelete: 'cascade' }),
     ...timestamps,
   },
   (table) => {

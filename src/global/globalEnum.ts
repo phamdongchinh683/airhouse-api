@@ -21,3 +21,8 @@ export enum Status {
   Accept = 'accept',
   Refuse = 'refuse',
 }
+
+export enum ActionEvent {
+  Create = 'create',
+  Update = 'update',
+}

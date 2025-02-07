@@ -8,7 +8,7 @@ export const conversation = pgTable(
     id: uuid().primaryKey(),
     conversation_name: varchar({ length: 256 }).notNull(),
     user_id: uuid()
-      .references(() => user.id)
+      .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     is_group: boolean(),
     ...timestamps,

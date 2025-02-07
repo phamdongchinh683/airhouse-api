@@ -7,3 +7,6 @@ export const jwtConstants = {
 export const tokenLife: string = process.env.JWT_EXPIRES;
 export const IS_PUBLIC_KEY: string = process.env.IS_PUBLIC_KEY;
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+export const accessKeyAws: string = process.env.AWS_ACCESS_KEY;
+export const secretKeyAws: string = process.env.AWS_SECRET_KEY;
+export const bucketName: string = process.env.AWS_BUCKET_NAME;

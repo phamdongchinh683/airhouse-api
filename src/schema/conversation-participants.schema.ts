@@ -8,10 +8,10 @@ export const conversationParticipant = pgTable(
   {
     id: uuid().primaryKey(),
     user_id: uuid()
-      .references(() => user.id)
+      .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     conversation_id: uuid()
-      .references(() => conversation.id)
+      .references(() => conversation.id, { onDelete: 'cascade' })
       .notNull(),
     ...timestamps,
   },

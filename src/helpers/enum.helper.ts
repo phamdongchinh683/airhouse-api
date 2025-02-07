@@ -7,3 +7,7 @@ export const roleEnum = varchar('role', {
 export const statusEnum = varchar('status', {
   enum: ['pending', 'accept', 'refuse'],
 });
+
+export const actionEnum = varchar('action', {
+  enum: ['create', 'update', ' remove'],
+});
