@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { eq, gt, inArray, lt } from 'drizzle-orm';
+import { desc, eq, gt, inArray, lt } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
 import { ActionEvent } from 'src/global/globalEnum';
 import { PaginationResult } from 'src/global/globalPagination';
@@ -220,7 +220,7 @@ export class BuildingService {
     const query = this.database
       .select()
       .from(schemas.building)
-      .orderBy(schemas.building.created_at)
+      .orderBy(desc(schemas.building.created_at))
       .limit(limit);
 
     if (cursor) {
@@ -228,13 +228,13 @@ export class BuildingService {
         direction === 'next'
           ? gt(schemas.building.id, cursor) // this is next page
           : lt(schemas.building.id, cursor); // this is prev page
-      results = await query.offset(offset).where(pageDirection); // with condition page direction use where query data
+      results = await query.where(pageDirection); // with condition page direction use where query data
     } else {
       results = await query.offset(offset); // default query data
     }
 
     return new PaginationResult(
-      results.length > 0 ? results : 'There are currently no buildings', // results data
+      results.length > 0 ? results : [], // results data
       page, // current page
       results.length ? results[results.length - 1].id : undefined, // next cursor
       results.length ? results[0].id : undefined, // prev cursor
