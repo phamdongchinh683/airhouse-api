@@ -12,4 +12,17 @@ export enum Role {
   User = 'user',
   Admin = 'admin',
   Sale = 'sale',
+  ProjectManagement = 'project_management',
+  CTV = 'ctv',
+}
+
+export enum Status {
+  Pending = 'pending',
+  Accept = 'accept',
+  Refuse = 'refuse',
+}
+
+export enum ActionEvent {
+  Create = 'create',
+  Update = 'update',
 }
