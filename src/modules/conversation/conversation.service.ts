@@ -9,7 +9,7 @@ import { UserConversation } from './dto/user-conversation.dto';
 export class ConversationService {
   constructor(
     @Inject(DrizzleAsyncProvider)
-    private database: NodePgDatabase<typeof schemas>,
+    private readonly database: NodePgDatabase<typeof schemas>,
   ) {}
 
   async getConversationsByUser(userId: string): Promise<any> {

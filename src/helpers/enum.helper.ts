@@ -9,5 +9,5 @@ export const statusEnum = varchar('status', {
 });
 
 export const actionEnum = varchar('action', {
-  enum: ['create', 'update', ' remove'],
+  enum: ['create', 'update', 'remove'],
 });

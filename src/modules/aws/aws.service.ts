@@ -1,15 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
-import { DrizzleAsyncProvider } from 'src/providers/drizzle.provider';
-import * as schemas from '../../schema/schema';
 
 @Injectable()
 export class AwsService {
-  constructor(
-    @Inject(DrizzleAsyncProvider)
-    private database: NodePgDatabase<typeof schemas>,
-  ) {}
   AWS_S3_BUCKET = process.env.AWS_BUCKET_NAME;
   s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY,

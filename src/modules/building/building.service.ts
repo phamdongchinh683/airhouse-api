@@ -14,6 +14,8 @@ import { HistoryService } from '../history/history.service';
 import { CreateBuildingPhoneNumberDto } from './dto/create-building-phone-number.dto';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { DeleteBuildingByIdsDto } from './dto/delete-building-by-ids.dto';
+import { DetailBuildingDto } from './dto/detail-building.dto';
+import { ListBuildingDto } from './dto/list-building.dto';
 import { PaginationBuildingDto } from './dto/pagination-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 
@@ -160,6 +162,7 @@ export class BuildingService {
 
     const newHistory =
       await this.historyService.createHistoryUpdate(dataNewHistory);
+    console.log(newHistory);
     return newHistory.rowCount > 0
       ? 'Updated'
       : 'There are no changes when adding building history';
@@ -216,10 +219,27 @@ export class BuildingService {
       return null;
     }
 
-    let results: any;
+    let results: ListBuildingDto[];
     const query = this.database
-      .select()
+      .select({
+        id: schemas.building.id,
+        projectCode: schemas.building.project_code,
+        buildingImage: schemas.building.building_image,
+        address: schemas.building.address,
+        roomQuantity: schemas.building.room_quantity,
+        roomAvailable: schemas.building.room_quantity,
+        sharedFacilities: schemas.building.shared_facilities,
+        commission: schemas.building.commission,
+        costs: schemas.building.costs,
+        source: schemas.building.source,
+        note: schemas.building.note,
+        phoneNumber: schemas.buildingPhoneNumber.phone_number,
+      })
       .from(schemas.building)
+      .leftJoin(
+        schemas.buildingPhoneNumber,
+        eq(schemas.building.id, schemas.buildingPhoneNumber.building_id),
+      )
       .orderBy(desc(schemas.building.created_at))
       .limit(limit);
 
@@ -243,15 +263,32 @@ export class BuildingService {
       pages, // how many pages example: page: 1/20 or 2/20 (20 pages)
     );
   }
-
-  async buildingDetail(id: string) {
-    return await this.database
-      .select()
+  async buildingDetail(id: string): Promise<DetailBuildingDto> {
+    const getBuildingId = await this.database
+      .select({
+        id: schemas.building.id,
+        projectCode: schemas.building.project_code,
+        buildingImage: schemas.building.building_image,
+        address: schemas.building.address,
+        roomQuantity: schemas.building.room_quantity,
+        roomAvailable: schemas.building.room_quantity,
+        sharedFacilities: schemas.building.shared_facilities,
+        commission: schemas.building.commission,
+        costs: schemas.building.costs,
+        source: schemas.building.source,
+        note: schemas.building.note,
+        phoneNumber: schemas.buildingPhoneNumber.phone_number,
+      })
       .from(schemas.building)
       .leftJoin(
         schemas.buildingPhoneNumber,
         eq(schemas.buildingPhoneNumber.building_id, schemas.building.id),
       )
       .where(eq(schemas.building.id, id));
+
+    const getHistories = await this.historyService.getHistoryByEntityId(id);
+
+    const results = { building: getBuildingId[0], histories: getHistories };
+    return results;
   }
 }
