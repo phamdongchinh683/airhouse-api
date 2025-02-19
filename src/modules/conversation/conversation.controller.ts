@@ -12,12 +12,12 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { ConversationService } from './conversation.service';
 import { ConversationList } from './dto/conversation-list.dto';
 
+@UseGuards(AuthGuard)
 @UseInterceptors(CacheInterceptor)
 @Controller('conversation')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
-  @UseGuards(AuthGuard)
   @Get()
   async getConversation(@Req() req: Request) {
     try {

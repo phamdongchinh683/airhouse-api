@@ -149,4 +149,21 @@ export class ChatGateWay implements OnModuleInit {
       });
     }
   }
+
+  @SubscribeMessage('newChat')
+  async initChatNotExited(
+    @MessageBody() body: { userId: string },
+    @ConnectedSocket() socket: Socket,
+  ): Promise<void> {
+    try {
+      socket.join(body.userId);
+      socket.emit('onNotification', {
+        status: 'success',
+      });
+    } catch (error) {
+      socket.emit('onNotification', {
+        message: error.message,
+      });
+    }
+  }
 }
