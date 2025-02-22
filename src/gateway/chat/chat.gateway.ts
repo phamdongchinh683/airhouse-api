@@ -12,6 +12,7 @@ import { Cache } from 'cache-manager';
 import { Server, Socket } from 'socket.io';
 import { WsGuard } from 'src/guards/ws.guard';
 import { ConversationService } from 'src/modules/conversation/conversation.service';
+import { CreateConversationDto } from 'src/modules/conversation/dto/create-conversation.dto';
 import { UserConversation } from 'src/modules/conversation/dto/user-conversation.dto';
 import {
   MessageCreationDto,
@@ -134,12 +135,10 @@ export class ChatGateWay implements OnModuleInit {
   }
 
   @SubscribeMessage('messageNotification')
-  async messageNotification(
-    @MessageBody() body: { userId: string },
-    @ConnectedSocket() socket: Socket,
-  ): Promise<void> {
+  async messageNotification(@ConnectedSocket() socket: Socket): Promise<void> {
     try {
-      socket.join(body.userId);
+      const userId = this.getUserId(socket);
+      socket.join(userId);
       socket.emit('onNotification', {
         status: 'success',
       });
@@ -152,16 +151,29 @@ export class ChatGateWay implements OnModuleInit {
 
   @SubscribeMessage('newChat')
   async initChatNotExited(
-    @MessageBody() body: { userId: string },
+    @MessageBody() body: CreateConversationDto,
     @ConnectedSocket() socket: Socket,
   ): Promise<void> {
     try {
-      socket.join(body.userId);
-      socket.emit('onNotification', {
-        status: 'success',
-      });
+      if (!body) {
+        throw new Error('Invalid chat data.');
+      }
+
+      const result = await this.conversationService.initChat(body);
+
+      if (result) {
+        socket.emit('onMessage', {
+          message: body.message,
+          status: 'success',
+        });
+
+        this.server.to(result.users).emit('onNotification', {
+          status: 'success',
+          data: `You have a message from ${result.conversationId}`,
+        });
+      }
     } catch (error) {
-      socket.emit('onNotification', {
+      socket.emit('onMessage', {
         message: error.message,
       });
     }

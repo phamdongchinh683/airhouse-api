@@ -4,7 +4,7 @@ export class CreateConversationDto {
   @IsNotEmpty()
   @IsString()
   userIds: string;
-  @IsSring()
+  @IsString()
   message: string;
   @IsNotEmpty()
   @IsBoolean()

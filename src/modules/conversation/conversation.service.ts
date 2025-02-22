@@ -15,48 +15,65 @@ export class ConversationService {
   ) {}
 
   async initChat(params: CreateConversationDto) {
-    return await this.database.transaction(async (tx) => {
-      const usersChat = params.userIds.split(','); // example: 1,2,3,4 // id user -> [1,2,3,4]
+    return await this.database.transaction(async () => {
+      try {
+        const usersChat = params.userIds.split(','); // example: "1,2,3,4" -> [1,2,3,4]
 
-      const dataConversation = {
-        id: uuidv4(),
-        conversation_name: 'Couple chat',
-        user_id: usersChat[0],
-        is_group: params.isGroup,
-      };
+        const dataConversation = {
+          id: uuidv4(),
+          conversation_name: params.isGroup ? 'Group Chat' : 'Private Chat',
+          user_id: usersChat[0],
+          is_group: params.isGroup,
+        };
 
-      const createConversation = await this.database
-        .insert(schemas.conversation)
-        .values(dataConversation)
-        .returning({ id: schemas.conversation.id });
+        const createConversation = await this.database
+          .insert(schemas.conversation)
+          .values(dataConversation)
+          .returning({ id: schemas.conversation.id });
 
-      if (createConversation.length === 0) return 'Cannot create conversation';
+        if (createConversation.length === 0) {
+          throw new Error('Cannot create conversation');
+        }
 
-      const dataConversationParticipants = usersChat.map((user) => ({
-        id: uuidv4(),
-        user_id: user,
-        conversation_id: createConversation[0].id,
-      }));
+        const conversationId = createConversation[0].id;
 
-      const insertUsersChat = await this.database
-        .insert(schemas.conversationParticipant)
-        .values(dataConversationParticipants);
+        const dataConversationParticipants = usersChat.map((user) => ({
+          id: uuidv4(),
+          user_id: user,
+          conversation_id: conversationId,
+        }));
 
-      if (insertUsersChat.rowCount === 0)
-        return `Cannot insert user in to conversation ${createConversation[0].id}`;
+        const insertUsersChat = await this.database
+          .insert(schemas.conversationParticipant)
+          .values(dataConversationParticipants);
 
-      const message = {
-        id: uuidv4(),
-        user_id: usersChat[0],
-        conversation_id: createConversation[0].id,
-        message_text: params.message,
-      };
-      const createMessage = await this.database
-        .insert(schemas.message)
-        .values(message);
+        if (insertUsersChat.rowCount === 0) {
+          throw new Error(
+            `Cannot insert users into conversation ${conversationId}`,
+          );
+        }
 
-      if (createMessage.rowCount === 0) {
-        tx.rollback();
+        const message = {
+          id: uuidv4(),
+          user_id: usersChat[0],
+          conversation_id: conversationId,
+          message_text: params.message,
+        };
+
+        const createMessage = await this.database
+          .insert(schemas.message)
+          .values(message);
+
+        if (createMessage.rowCount === 0) {
+          throw new Error('Not receive message start conversation');
+        }
+
+        return {
+          conversationId,
+          users: usersChat,
+        };
+      } catch (error) {
+        throw error; // Ensures transaction rollback
       }
     });
   }

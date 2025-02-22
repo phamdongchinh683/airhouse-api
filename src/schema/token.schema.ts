@@ -17,7 +17,7 @@ export const token = pgTable(
     return {
       idIdx: index('token_id_idx').on(table.id),
       userTokenIdIdx: index('token_user_id_idx').on(table.user_id),
-      createAtIdx: index('token_create_at_idx').on(table.create_at),
+      createdAtIdx: index('token_create_at_idx').on(table.created_at),
     };
   },
 );
