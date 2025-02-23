@@ -1,8 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class AuthPayLoad {
+export class AuthLogout {
   @IsNotEmpty()
-  sub: string;
+  userId: string;
   @IsNotEmpty()
-  role: string;
+  token: string;
 }

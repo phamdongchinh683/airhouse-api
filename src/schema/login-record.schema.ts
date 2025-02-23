@@ -7,7 +7,7 @@ export const loginRecord = pgTable(
   {
     id: uuid().primaryKey(),
     user_id: uuid()
-      .references(() => user.id)
+      .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     ip: inet(),
     device_info: varchar({ length: 255 }).notNull(),

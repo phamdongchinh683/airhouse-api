@@ -29,7 +29,7 @@ export const user = pgTable(
       emailIdx: uniqueIndex('email_idx').on(table.email),
       phoneNumberIdx: uniqueIndex('phone_number_idx').on(table.phone_number),
       roleIdx: index('role_idx').on(table.role),
-      createdAtIdx: index('user_create_at_idx').on(table.created_at),
+      createAtIdx: index('user_create_at_idx').on(table.created_at),
     };
   },
 );

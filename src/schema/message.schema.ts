@@ -8,10 +8,10 @@ export const message = pgTable(
   {
     id: uuid().primaryKey(),
     user_id: uuid()
-      .references(() => user.id)
+      .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     conversation_id: uuid()
-      .references(() => conversation.id)
+      .references(() => conversation.id, { onDelete: 'cascade' })
       .notNull(),
     message_text: varchar({ length: 255 }).notNull(),
     ...timestamps,

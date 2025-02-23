@@ -23,7 +23,6 @@ export class MessageService {
       conversation_id: message.conversationId,
       message_text: message.messageText,
     }));
-    console.log(messages);
 
     return await this.database.insert(schemas.message).values(messages);
   }
