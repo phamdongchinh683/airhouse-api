@@ -4,6 +4,10 @@ export class CreateConversationDto {
   @IsNotEmpty()
   @IsString()
   userIds: string;
+  @IsNotEmpty()
+  @IsString()
+  conversationName: string;
+  @IsNotEmpty()
   @IsString()
   message: string;
   @IsNotEmpty()

@@ -56,16 +56,15 @@ export class ChatGateWay implements OnModuleInit {
           messages: cachedMessages,
         };
         if (cachedMessages) {
-          Promise.all([
-            this.messageService.insertMessages(data),
-            this.cacheManager.del(socket.id),
-          ]);
+          await this.messageService.insertMessages(data);
+          await this.cacheManager.del(socket.id);
         }
         console.log(`Client disconnected: ${socket.id}`);
       });
     });
   }
 
+  //send message
   @SubscribeMessage('newMessage')
   async newMessage(
     @MessageBody() message: MessageList,
@@ -111,6 +110,7 @@ export class ChatGateWay implements OnModuleInit {
     }
   }
 
+  // get history message
   @SubscribeMessage('joinConversation')
   async joinConversation(
     @MessageBody() body: { conversationId: string },
@@ -162,15 +162,20 @@ export class ChatGateWay implements OnModuleInit {
       const result = await this.conversationService.initChat(body);
 
       if (result) {
+        // message sending
         socket.emit('onMessage', {
           message: body.message,
           status: 'success',
         });
-
-        this.server.to(result.users).emit('onNotification', {
-          status: 'success',
-          data: `You have a message from ${result.conversationId}`,
-        });
+        // join conversation
+        socket.join(result.conversationId);
+        //send notification to users
+        this.server
+          .to(result.users.slice(1, result.users.length))
+          .emit('onNotification', {
+            status: 'success',
+            data: `You have a message from ${result.conversationId}`,
+          });
       }
     } catch (error) {
       socket.emit('onMessage', {

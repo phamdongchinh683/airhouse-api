@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
 import { DrizzleAsyncProvider } from 'src/providers/drizzle.provider';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,9 +21,9 @@ export class ConversationService {
 
         const dataConversation = {
           id: uuidv4(),
-          conversation_name: params.isGroup ? 'Group Chat' : 'Private Chat',
-          user_id: usersChat[0],
-          is_group: params.isGroup,
+          conversation_name: params.conversationName, // get email user from client with input email user receive message example: chinhchinh@gmail.com
+          user_id: usersChat[0], // get first element create conversation when init chat,
+          is_group: params.isGroup, // true -> group , false - private 1 - 1 user
         };
 
         const createConversation = await this.database
@@ -73,7 +73,7 @@ export class ConversationService {
           users: usersChat,
         };
       } catch (error) {
-        throw error; // Ensures transaction rollback
+        throw error;
       }
     });
   }
@@ -83,17 +83,16 @@ export class ConversationService {
       .select({
         conversationId: schemas.conversation.id,
         conversationName: schemas.conversation.conversation_name,
-        isGroup: schemas.conversation.is_group,
       })
-      .from(schemas.conversationParticipant)
-      .innerJoin(
-        schemas.conversation,
+      .from(schemas.conversation)
+      .leftJoin(
+        schemas.conversationParticipant,
         eq(
-          schemas.conversationParticipant.conversation_id,
           schemas.conversation.id,
+          schemas.conversationParticipant.conversation_id,
         ),
       )
-      .where(and(eq(schemas.conversationParticipant.user_id, userId)))
+      .where(eq(schemas.conversationParticipant.user_id, userId))
       .execute();
 
     return conversationData;
