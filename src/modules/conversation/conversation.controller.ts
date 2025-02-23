@@ -6,19 +6,22 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResponseData } from 'src/global/globalClass';
 import { httpMessage, httpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { ConversationService } from './conversation.service';
 import { ConversationList } from './dto/conversation-list.dto';
 
+@ApiBearerAuth()
+@ApiTags('conversation')
+@UseGuards(AuthGuard)
 @UseInterceptors(CacheInterceptor)
-@Controller('conversation')
+@Controller('api/conversation')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
-  @UseGuards(AuthGuard)
-  @Get()
+  @Get('conversation-list')
   async getConversation(@Req() req: Request) {
     try {
       const conversations =

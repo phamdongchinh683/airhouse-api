@@ -12,6 +12,7 @@ import { Cache } from 'cache-manager';
 import { Server, Socket } from 'socket.io';
 import { WsGuard } from 'src/guards/ws.guard';
 import { ConversationService } from 'src/modules/conversation/conversation.service';
+import { CreateConversationDto } from 'src/modules/conversation/dto/create-conversation.dto';
 import { UserConversation } from 'src/modules/conversation/dto/user-conversation.dto';
 import {
   Message,
@@ -55,16 +56,15 @@ export class ChatGateWay implements OnModuleInit {
           messages: cachedMessages,
         };
         if (cachedMessages) {
-          Promise.all([
-            this.messageService.insertMessages(data),
-            this.cacheManager.del(socket.id),
-          ]);
+          await this.messageService.insertMessages(data);
+          await this.cacheManager.del(socket.id);
         }
         console.log(`Client disconnected: ${socket.id}`);
       });
     });
   }
 
+  //send message
   @SubscribeMessage('newMessage')
   async newMessage(
     @MessageBody() message: Message,
@@ -110,6 +110,7 @@ export class ChatGateWay implements OnModuleInit {
     }
   }
 
+  // get history message
   @SubscribeMessage('joinConversation')
   async joinConversation(
     @MessageBody() body: { conversationId: string },
@@ -134,17 +135,50 @@ export class ChatGateWay implements OnModuleInit {
   }
 
   @SubscribeMessage('messageNotification')
-  async messageNotification(
-    @MessageBody() body: { userId: string },
-    @ConnectedSocket() socket: Socket,
-  ): Promise<void> {
+  async messageNotification(@ConnectedSocket() socket: Socket): Promise<void> {
     try {
-      socket.join(body.userId);
+      const userId = this.getUserId(socket);
+      socket.join(userId);
       socket.emit('onNotification', {
         status: 'success',
       });
     } catch (error) {
       socket.emit('onNotification', {
+        message: error.message,
+      });
+    }
+  }
+
+  @SubscribeMessage('newChat')
+  async initChatNotExited(
+    @MessageBody() body: CreateConversationDto,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<void> {
+    try {
+      if (!body) {
+        throw new Error('Invalid chat data.');
+      }
+
+      const result = await this.conversationService.initChat(body);
+
+      if (result) {
+        // message sending
+        socket.emit('onMessage', {
+          message: body.message,
+          status: 'success',
+        });
+        // join conversation
+        socket.join(result.conversationId);
+        //send notification to users
+        this.server
+          .to(result.users.slice(1, result.users.length))
+          .emit('onNotification', {
+            status: 'success',
+            data: `You have a message from ${result.conversationId}`,
+          });
+      }
+    } catch (error) {
+      socket.emit('onMessage', {
         message: error.message,
       });
     }
