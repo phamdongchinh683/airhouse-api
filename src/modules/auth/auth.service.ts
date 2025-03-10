@@ -23,6 +23,7 @@ import { AuthRecordDto } from './dto/auth.record.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
 import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
+import { AuthListDto } from './dto/auth.list.dto';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +46,7 @@ export class AuthService {
     const user = await this.database
       .select({
         id: schemas.user.id,
+        email: schemas.user.email,
         password: schemas.user.password,
         role: schemas.user.role,
       })
@@ -101,8 +103,8 @@ export class AuthService {
       case 'refuse':
         return 'This device is not approved';
       case 'accept':
-        const { id, role } = user[0];
-        const payload = { sub: id, role: role };
+        const { id, role, email } = user[0];
+        const payload = { sub: id, role: role, email: email };
         const accessToken = this.jwtService.sign(payload);
 
         return {
@@ -259,12 +261,22 @@ export class AuthService {
   }
 
   async checkTokenAccount(token: string): Promise<{ token: string }[]> {
-    return await this.database
+    return this.database
       .select({
         token: schemas.token.token,
       })
       .from(schemas.token)
       .where(eq(schemas.token.token, token))
+      .execute();
+  }
+
+  async getUsers(): Promise<AuthListDto[]> {
+    return this.database
+      .select({
+        id: schemas.user.id,
+        email: schemas.user.email,
+      })
+      .from(schemas.user)
       .execute();
   }
 }

@@ -18,8 +18,13 @@ export class WsGuard implements CanActivate {
   ): Promise<
     boolean | any | Promise<boolean | any> | Observable<boolean | any>
   > {
-    const bearerToken =
-      context.args[0].handshake.headers.authorization.split(' ')[1];
+    const request = context.args[0].handshake;
+
+    let bearerToken = request.auth?.authorization?.split(' ')[1]; // dependence in framework
+
+    if (!bearerToken && request.headers?.authorization) {
+      bearerToken = request.headers.authorization.split(' ')[1]; // case if headers authorization
+    }
     if (!bearerToken) {
       throw new WsException('No token or invalid token');
     }

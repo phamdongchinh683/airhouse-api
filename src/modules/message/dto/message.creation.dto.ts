@@ -1,15 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
+
 export class MessageCreationDto {
   @ApiProperty()
   @IsString()
-  userId: string;
+  userId?: string;
   @ApiProperty()
-  @IsArray()
-  messages: Message[];
-}
-
-export class Message {
+  @IsString()
+  userEmail: string;
   @ApiProperty()
   @IsString()
   conversationId: string;

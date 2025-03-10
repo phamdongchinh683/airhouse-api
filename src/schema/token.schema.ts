@@ -1,4 +1,4 @@
-import { index, pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from 'src/helpers/columns.helper';
 import { user } from './user.schema';
 
@@ -9,7 +9,7 @@ export const token = pgTable(
     user_id: uuid()
       .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
-    token: varchar({ length: 256 }).notNull().unique(),
+    token: text().notNull().unique(),
     ...timestamps,
   },
   (table) => {

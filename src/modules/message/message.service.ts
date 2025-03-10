@@ -16,15 +16,17 @@ export class MessageService {
     private database: NodePgDatabase<typeof schemas>,
   ) {}
 
-  async insertMessages(data: MessageCreationDto): Promise<QueryResult<never>> {
-    const messages = data.messages.map((message) => ({
+  async insertMessages(
+    message: MessageCreationDto,
+  ): Promise<QueryResult<never>> {
+    const messageData = {
       id: uuidv4(),
-      user_id: data.userId,
+      user_id: message.userId,
       conversation_id: message.conversationId,
       message_text: message.messageText,
-    }));
+    };
 
-    return await this.database.insert(schemas.message).values(messages);
+    return await this.database.insert(schemas.message).values(messageData);
   }
 
   async getMessages(conversationId: string): Promise<MessageHistoryDto[]> {

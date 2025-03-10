@@ -94,7 +94,6 @@ export class ConversationService {
       )
       .where(eq(schemas.conversationParticipant.user_id, userId))
       .execute();
-
     return conversationData;
   }
 
@@ -117,5 +116,16 @@ export class ConversationService {
       .execute();
 
     return usersConversation;
+  }
+
+  async findConversationById(id: string): Promise<
+    {
+      id: string;
+    }[]
+  > {
+    return this.database
+      .select({ id: schemas.conversation.id })
+      .from(schemas.conversation)
+      .where(eq(schemas.conversation.id, id));
   }
 }

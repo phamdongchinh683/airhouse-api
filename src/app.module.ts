@@ -21,6 +21,7 @@ import { ConversationModule } from './modules/conversation/conversation.module';
 import { DrizzleModule } from './modules/drizzle/drizzle.module';
 import { HistoryModule } from './modules/history/history.module';
 import { MailModule } from './modules/mail/mail.module';
+import { MessageModule } from './modules/message/message.module';
 import { UserModule } from './modules/user/user.module';
 import { appProviders } from './providers/app.provider';
 dotenv.config({ debug: false });
@@ -37,6 +38,7 @@ dotenv.config({ debug: false });
     MailModule,
     AwsModule,
     ConversationModule,
+    MessageModule,
     ChatGateWayModule,
     BuildingModule,
     HistoryModule,

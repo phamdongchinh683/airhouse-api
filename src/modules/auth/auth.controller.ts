@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Ip,
   Post,
   Put,
@@ -13,6 +14,7 @@ import { httpMessage, httpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { AuthJwtDto } from './dto/auth.jwt.dto';
+import { AuthListDto } from './dto/auth.list.dto';
 import { AuthLogout } from './dto/auth.logout.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
@@ -156,6 +158,26 @@ export class AuthController {
       };
       const result = await this.authService.logout(data);
       return new ResponseData<string>(
+        result,
+        httpStatus.SUCCESS,
+        httpMessage.SUCCESS,
+      );
+    } catch (e: any) {
+      return new ResponseData<string>(
+        e.message,
+        httpStatus.ERROR,
+        httpMessage.ERROR,
+      );
+    }
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('user-list')
+  async getAllUsers() {
+    try {
+      const result = await this.authService.getUsers();
+      return new ResponseData<AuthListDto[]>(
         result,
         httpStatus.SUCCESS,
         httpMessage.SUCCESS,
