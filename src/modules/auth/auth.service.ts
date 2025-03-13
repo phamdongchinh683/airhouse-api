@@ -16,14 +16,15 @@ import { DeviceService } from '../device/device.service';
 import { DeviceCreationDto } from '../device/dto/device.creation.dto';
 import { DeviceStatusDto } from '../device/dto/device.status.dto';
 import { MailService } from '../mail/mail.service';
+import { AuthDetailDto } from './dto/auth.detail.dto';
 import { AuthJwtDto } from './dto/auth.jwt.dto';
+import { AuthListDto } from './dto/auth.list.dto';
 import { AuthLogout } from './dto/auth.logout.dto';
 import { AuthPayLoad } from './dto/auth.payload.dto';
 import { AuthRecordDto } from './dto/auth.record.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
 import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
-import { AuthListDto } from './dto/auth.list.dto';
 
 @Injectable()
 export class AuthService {
@@ -160,6 +161,19 @@ export class AuthService {
     } else {
       return 'No user found with the given email.';
     }
+  }
+
+  async userDetailById(id: string): Promise<AuthDetailDto> {
+    const result = await this.database
+      .select({
+        email: schemas.user.email,
+        image: schemas.user.image,
+        phoneNumber: schemas.user.phone_number,
+      })
+      .from(schemas.user)
+      .where(eq(schemas.user.id, id));
+
+    return result[0];
   }
 
   async findUserById(userId: string): Promise<AuthPayLoad> {
