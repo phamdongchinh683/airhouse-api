@@ -8,6 +8,8 @@ export class AuthUpdatePasswordDto {
   password: string;
   @ApiProperty()
   @IsString()
-  @Length(9, 20, { message: 'password must be between 9 and 20 characters' })
+  @Length(9, 20, {
+    message: 'new password must be between 9 and 20 characters',
+  })
   newPassword: string;
 }
