@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Ip,
+  Patch,
   Post,
   Put,
   Req,
@@ -19,6 +20,7 @@ import { AuthListDto } from './dto/auth.list.dto';
 import { AuthLogout } from './dto/auth.logout.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
+import { AuthUpdateInfoDto } from './dto/auth.update-info.dto';
 import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
 
 @ApiTags('auth')
@@ -125,7 +127,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Put('update-password')
+  @Patch('update-password')
   async updatePassword(
     @Req() req: Request,
     @Body() data: AuthUpdatePasswordDto,
@@ -179,6 +181,26 @@ export class AuthController {
         token: req['token'],
       };
       const result = await this.authService.logout(data);
+      return new ResponseData<string>(
+        result,
+        httpStatus.SUCCESS,
+        httpMessage.SUCCESS,
+      );
+    } catch (e: any) {
+      return new ResponseData<string>(
+        e.message,
+        httpStatus.ERROR,
+        httpMessage.ERROR,
+      );
+    }
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Put('update-profile')
+  async updateProfile(@Req() req: Request, @Body() data: AuthUpdateInfoDto) {
+    try {
+      const result = await this.authService.updateInfo(req['user'].sub, data);
       return new ResponseData<string>(
         result,
         httpStatus.SUCCESS,

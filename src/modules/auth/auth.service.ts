@@ -24,6 +24,7 @@ import { AuthPayLoad } from './dto/auth.payload.dto';
 import { AuthRecordDto } from './dto/auth.record.dto';
 import { AuthLoginDto } from './dto/auth.signin.dto';
 import { AuthSignUpDto } from './dto/auth.signup.dto';
+import { AuthUpdateInfoDto } from './dto/auth.update-info.dto';
 import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
 
 @Injectable()
@@ -127,6 +128,7 @@ export class AuthService {
       email: data.email,
       phone_number: data.phoneNumber,
       role: data.role,
+      image: '',
     };
 
     const result = await this.database.insert(user).values(newUser);
@@ -172,7 +174,6 @@ export class AuthService {
       })
       .from(schemas.user)
       .where(eq(schemas.user.id, id));
-
     return result[0];
   }
 
@@ -292,5 +293,20 @@ export class AuthService {
       })
       .from(schemas.user)
       .execute();
+  }
+
+  async updateInfo(id: string, data: AuthUpdateInfoDto): Promise<string> {
+    const result = await this.database
+      .update(schemas.user)
+      .set({
+        email: data.email,
+        phone_number: data.phoneNumber,
+        image: data.image,
+      })
+      .where(eq(schemas.user.id, id));
+
+    if (result.rowCount > 0) {
+      return 'Updated';
+    }
   }
 }
