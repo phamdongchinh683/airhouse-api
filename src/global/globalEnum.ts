@@ -26,3 +26,11 @@ export enum ActionEvent {
   Create = 'create',
   Update = 'update',
 }
+
+export const SocketEvents = {
+  MESSAGE: 'onMessage',
+  MESSAGE_HISTORY: 'onMessageHistory',
+  CONVERSATION_LIST: 'onConversationList',
+  NOTIFICATION: 'onNotification',
+  JOIN_STATUS: 'onStatusJoin',
+};

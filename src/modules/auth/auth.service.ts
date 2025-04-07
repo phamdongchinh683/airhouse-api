@@ -109,9 +109,7 @@ export class AuthService {
         const payload = { sub: id, role: role, email: email };
         const accessToken = this.jwtService.sign(payload);
 
-        return {
-          token: accessToken,
-        };
+        return accessToken;
 
       default:
         await this.mailService.sendRequestDevice(data.email);
@@ -128,7 +126,7 @@ export class AuthService {
       email: data.email,
       phone_number: data.phoneNumber,
       role: data.role,
-      image: '',
+      image: 'empty',
     };
 
     const result = await this.database.insert(user).values(newUser);

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
 import { QueryResult } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,7 @@ import { DrizzleAsyncProvider } from 'src/providers/drizzle.provider';
 import * as schemas from '../../schema/schema';
 import { MessageCreationDto } from './dto/message.creation.dto';
 import { MessageHistoryDto } from './dto/message.history.dto';
+import { MessageUpdateDto } from './dto/message.update.dto';
 
 @Injectable()
 export class MessageService {
@@ -16,9 +17,7 @@ export class MessageService {
     private database: NodePgDatabase<typeof schemas>,
   ) {}
 
-  async insertMessages(
-    message: MessageCreationDto,
-  ): Promise<QueryResult<never>> {
+  async insertMessages(message: MessageCreationDto): Promise<{ id: string }[]> {
     const messageData = {
       id: uuidv4(),
       user_id: message.userId,
@@ -26,7 +25,12 @@ export class MessageService {
       message_text: message.messageText,
     };
 
-    return await this.database.insert(schemas.message).values(messageData);
+    return await this.database
+      .insert(schemas.message)
+      .values(messageData)
+      .returning({
+        id: schemas.message.id,
+      });
   }
 
   async getMessages(conversationId: string): Promise<MessageHistoryDto[]> {
@@ -41,5 +45,20 @@ export class MessageService {
       .leftJoin(schemas.user, eq(schemas.user.id, schemas.message.user_id))
       .where(eq(schemas.message.conversation_id, conversationId))
       .orderBy(schemas.message.created_at);
+  }
+
+  async updateMessage(data: MessageUpdateDto): Promise<QueryResult<never>> {
+    return await this.database
+      .update(schemas.message)
+      .set({
+        message_text: data.message_text,
+      })
+      .where(eq(schemas.message.id, data.conversation_id));
+  }
+
+  async deleteMessage(ids: string[]): Promise<QueryResult<never>> {
+    return await this.database
+      .delete(schemas.message)
+      .where(inArray(schemas.message.id, ids));
   }
 }

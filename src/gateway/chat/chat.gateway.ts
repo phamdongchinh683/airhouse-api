@@ -8,12 +8,17 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
+import { SocketEvents } from 'src/global/globalEnum';
 import { WsGuard } from 'src/guards/ws.guard';
 import { ConversationService } from 'src/modules/conversation/conversation.service';
 import { CreateConversationDto } from 'src/modules/conversation/dto/create-conversation.dto';
 import { UserConversation } from 'src/modules/conversation/dto/user-conversation.dto';
 import { MessageCreationDto } from 'src/modules/message/dto/message.creation.dto';
+import { MessageDeleteDto } from 'src/modules/message/dto/message.delete.dto';
+import { MessageResultDto } from 'src/modules/message/dto/message.result.dto';
+import { MessageUpdateDto } from 'src/modules/message/dto/message.update.dto';
 import { MessageService } from 'src/modules/message/message.service';
+import { responseSocket } from 'src/utils/response.util';
 
 @WebSocketGateway(parseInt(process.env.SOCKET_URL), {
   cors: {
@@ -54,6 +59,7 @@ export class ChatGateWay implements OnModuleInit {
   ): Promise<void> {
     try {
       const userId = this.getUserId(socket);
+      let result: MessageResultDto;
 
       const messageData = {
         userId: userId,
@@ -61,13 +67,20 @@ export class ChatGateWay implements OnModuleInit {
         conversationId: message.conversationId,
         messageText: message.messageText,
       };
+
       const insertMessage =
         await this.messageService.insertMessages(messageData);
 
-      if (insertMessage.rowCount > 0) {
-        this.server.to(message.conversationId).emit('onMessage', {
+      if (insertMessage.length > 0) {
+        result = {
+          id: insertMessage[0].id,
+          userEmail: message.userEmail,
+          messageText: message.messageText,
+        };
+
+        this.server.to(message.conversationId).emit(SocketEvents.MESSAGE, {
           status: 'success',
-          data: message,
+          data: result,
         });
       }
 
@@ -84,19 +97,15 @@ export class ChatGateWay implements OnModuleInit {
         (user) => user.userId === userId,
       );
 
-      this.server.to(usersReceiveNotification).emit('onNotification', {
+      socket.to(usersReceiveNotification).emit(SocketEvents.NOTIFICATION, {
         status: 'success',
         data: `You have a message from user ${userSendMessage[0].userEmail} conversation:${message.conversationId}`,
       });
     } catch (error) {
-      socket.emit('onMessage', {
-        status: 'error',
-        message: error.message,
-      });
+      responseSocket(socket, SocketEvents.MESSAGE, 'failed', error.message);
     }
   }
 
-  // join conversation
   @SubscribeMessage('joinConversation')
   async joinConversation(
     @MessageBody() body: { conversationId: string },
@@ -107,32 +116,28 @@ export class ChatGateWay implements OnModuleInit {
         await this.conversationService.findConversationById(
           body.conversationId,
         );
+      if (findConversation.length === 0) {
+        responseSocket(socket, SocketEvents.JOIN_STATUS, 'failed', []);
+      } else {
+        socket.join(body.conversationId);
 
-      if (findConversation.length <= 0) {
-        socket.emit('statusJoin', {
-          status: 'failed',
-          message: 'Currently this conversation not exited',
-        });
-        return;
+        const results = await this.messageService.getMessages(
+          body.conversationId,
+        );
+
+        if (results.length > 0) {
+          responseSocket(
+            socket,
+            SocketEvents.MESSAGE_HISTORY,
+            'success',
+            results,
+          );
+        } else {
+          responseSocket(socket, SocketEvents.MESSAGE_HISTORY, 'failed', []);
+        }
       }
-
-      socket.join(body.conversationId);
-      const results = await this.messageService.getMessages(
-        body.conversationId,
-      );
-      socket.emit('historyMessage', {
-        result:
-          results.length > 0
-            ? results
-            : 'There are no message logs in this chat',
-      });
-      socket.emit('statusJoin', {
-        status: 'success',
-      });
     } catch (error) {
-      socket.emit('statusJoin', {
-        message: error.message,
-      });
+      responseSocket(socket, SocketEvents.JOIN_STATUS, 'failed', error.message);
     }
   }
 
@@ -141,14 +146,20 @@ export class ChatGateWay implements OnModuleInit {
     try {
       const userId = this.getUserId(socket);
       socket.join(userId);
-      socket.emit('onNotification', {
-        status: 'success',
-        data: `Connected to notification at ${new Date().toLocaleString()}`,
-      });
+
+      responseSocket(
+        socket,
+        SocketEvents.NOTIFICATION,
+        'success',
+        `Connected to notification at ${new Date().toLocaleString()}`,
+      );
     } catch (error) {
-      socket.emit('onNotification', {
-        message: error.message,
-      });
+      responseSocket(
+        socket,
+        SocketEvents.NOTIFICATION,
+        'failed',
+        error.message,
+      );
     }
   }
 
@@ -165,21 +176,21 @@ export class ChatGateWay implements OnModuleInit {
       const result = await this.conversationService.initChat(body);
 
       if (result) {
-        // message sending
-        socket.emit('onMessage', {
-          result: result.conversationId,
-          status: 'success',
-        });
+        responseSocket(
+          socket,
+          SocketEvents.MESSAGE,
+          'success',
+          result.conversationId,
+        );
+
         //send notification to users
-        this.server.to(result.users.slice(1)).emit('onNotification', {
+        socket.to(result.users.slice(1)).emit(SocketEvents.NOTIFICATION, {
           status: 'success',
           data: `You have a new chat conversation:${result.conversationId}`,
         });
       }
     } catch (error) {
-      socket.emit('onMessage', {
-        message: error.message,
-      });
+      responseSocket(socket, 'onMessage', 'failed', error.message);
     }
   }
 
@@ -196,13 +207,69 @@ export class ChatGateWay implements OnModuleInit {
         body.userId,
       );
       if (result.length > 0) {
-        socket.emit('onChats', {
-          data: result,
-          status: 'success',
-        });
+        responseSocket(
+          socket,
+          SocketEvents.CONVERSATION_LIST,
+          'success',
+          result,
+        );
       }
     } catch (error) {
-      socket.emit('onChats', {
+      responseSocket(
+        socket,
+        SocketEvents.CONVERSATION_LIST,
+        'failed',
+        error.message,
+      );
+    }
+  }
+
+  @SubscribeMessage('updateMessage')
+  async updateMessage(
+    @MessageBody() body: MessageUpdateDto,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<void> {
+    try {
+      if (!body) {
+        throw new Error('Invalid chat data.');
+      }
+      const result = await this.messageService.updateMessage(body);
+      if (result.rowCount >= 1) {
+        this.server.to(body.conversation_id).emit(SocketEvents.MESSAGE, {
+          data: result,
+          status: 'updated',
+        });
+
+        responseSocket(socket, SocketEvents.MESSAGE, 'success', result);
+      }
+    } catch (error) {
+      responseSocket(socket, SocketEvents.MESSAGE, 'failed', error.message);
+    }
+  }
+
+  @SubscribeMessage('deleteMessage')
+  async deleteMessage(
+    @MessageBody() body: MessageDeleteDto,
+    @ConnectedSocket() socket: Socket,
+  ): Promise<void> {
+    try {
+      if (!body) {
+        throw new Error('Invalid chat data.');
+      }
+      const result = await this.messageService.deleteMessage(body.ids);
+      if (result.rowCount > 0) {
+        this.server.to(body.conversationId).emit(SocketEvents.MESSAGE, {
+          status: 'success',
+        });
+        responseSocket(
+          socket,
+          SocketEvents.MESSAGE,
+          'success',
+          'A few message deleted',
+        );
+      }
+    } catch (error) {
+      socket.emit(SocketEvents.MESSAGE, {
         message: error.message,
       });
     }

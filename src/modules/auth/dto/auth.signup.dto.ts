@@ -8,7 +8,7 @@ export class AuthSignUpDto {
   email: string;
   @ApiProperty()
   @IsString()
-  @Length(9, 20, { message: 'password must be between 9 and 20 characters' })
+  @Length(9, 20, { message: 'Password must be between 9 and 20 characters' })
   password: string;
   @ApiProperty()
   @IsString({ message: 'phone number must be a string' })

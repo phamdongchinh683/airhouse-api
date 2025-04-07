@@ -19,7 +19,6 @@ export class WsGuard implements CanActivate {
     boolean | any | Promise<boolean | any> | Observable<boolean | any>
   > {
     const request = context.args[0].handshake;
-
     let bearerToken = request.auth?.authorization?.split(' ')[1]; // dependence in framework
 
     if (!bearerToken && request.headers?.authorization) {
@@ -28,6 +27,7 @@ export class WsGuard implements CanActivate {
     if (!bearerToken) {
       throw new WsException('No token or invalid token');
     }
+
     try {
       const payload = await this.jwtService.verifyAsync(bearerToken, {
         secret: jwtConstants.secret,

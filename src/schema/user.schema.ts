@@ -15,7 +15,7 @@ export const user = pgTable(
     id: uuid().primaryKey(),
     email: varchar({ length: 100 }).unique().notNull(),
     password: varchar({ length: 256 }).notNull(),
-    phone_number: varchar({ length: 14 }).unique().notNull(),
+    phone_number: varchar({ length: 15 }).unique().notNull(),
     image: varchar({ length: 256 }).notNull(),
     role: roleEnum.notNull(),
     download_count: integer(),

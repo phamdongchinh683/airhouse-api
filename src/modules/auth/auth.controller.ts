@@ -63,10 +63,8 @@ export class AuthController {
         httpMessage.SUCCESS,
       );
     } catch (e: any) {
-      const unique = e.constraint.split('_')[1];
-      const result = unique + ' exited';
       return new ResponseData<string>(
-        result,
+        e.message,
         httpStatus.ERROR,
         httpMessage.ERROR,
       );
