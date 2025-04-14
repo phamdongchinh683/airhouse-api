@@ -104,8 +104,8 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
   @Get('profile')
+  @UseGuards(AuthGuard)
   async profile(@Req() req: Request) {
     try {
       const result = await this.authService.userDetailById(req['user'].sub);

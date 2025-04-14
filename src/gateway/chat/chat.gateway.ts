@@ -237,7 +237,7 @@ export class ChatGateWay implements OnModuleInit {
       if (result.rowCount >= 1) {
         this.server.to(body.conversation_id).emit(SocketEvents.MESSAGE, {
           data: result,
-          status: 'updated',
+          status: 'success',
         });
 
         responseSocket(socket, SocketEvents.MESSAGE, 'success', result);

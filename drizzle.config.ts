@@ -10,4 +10,3 @@ export default defineConfig({
     url: process.env.DATABASE_URL!,
   },
 });
-console.log('Connected database', process.env.DATABASE_URL);

@@ -1,6 +1,5 @@
-import { CacheInterceptor } from '@nestjs/cache-manager';
 import { ValidationPipe } from '@nestjs/common';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_PIPE } from '@nestjs/core';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { AwsService } from 'src/modules/aws/aws.service';
 import { BuildingService } from 'src/modules/building/building.service';
@@ -24,9 +23,5 @@ export const appProviders = [
   {
     provide: APP_PIPE,
     useClass: ValidationPipe,
-  },
-  {
-    provide: APP_INTERCEPTOR,
-    useClass: CacheInterceptor,
   },
 ];

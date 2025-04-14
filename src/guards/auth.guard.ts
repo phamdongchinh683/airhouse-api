@@ -27,12 +27,20 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // const checkToken = await this.authService.checkTokenAccount(token)
-
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+
     if (!token) {
       throw new UnauthorizedException('Token is missing');
+    }
+
+    const tokenAccount = await this.authService.checkTokenAccount(token);
+
+    if (tokenAccount.length > 0) {
+      if (token === tokenAccount[0].token) {
+        throw new UnauthorizedException('Token is valid');
+      }
+      return;
     }
 
     try {

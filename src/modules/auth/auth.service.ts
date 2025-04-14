@@ -190,7 +190,6 @@ export class AuthService {
       .execute();
 
     const user = result[0];
-
     if (user) {
       await this.cacheManager.set(`${userId}`, user, 3600);
     }
@@ -243,7 +242,9 @@ export class AuthService {
     const payload: AuthPayLoad = await this.jwtService.verifyAsync(token, {
       secret: jwtConstants.secret,
     });
-    if (!payload) throw new ForbiddenException('Token is not invalid');
+    if (!payload) {
+      throw new ForbiddenException('Token is not invalid');
+    }
 
     const user = await this.findUserById(payload.sub);
 
@@ -305,6 +306,8 @@ export class AuthService {
 
     if (result.rowCount > 0) {
       return 'Updated';
+    } else {
+      return 'No changes made';
     }
   }
 }

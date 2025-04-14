@@ -28,8 +28,10 @@ dotenv.config({ debug: false });
 
 @Module({
   imports: [
-    CacheModule.register({ isGlobal: true }),
-    CacheModule.registerAsync(RedisOptions),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      ...RedisOptions,
+    }),
     configAppModule,
     JwtConfig,
     UserModule,
