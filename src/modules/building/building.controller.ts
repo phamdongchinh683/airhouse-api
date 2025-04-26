@@ -28,7 +28,7 @@ import { UpdateBuildingDto } from './dto/update-building.dto';
 @ApiTags('building')
 @UseGuards(AuthGuard, RolesGuard) // apply authentication authorization for controller this
 @UseInterceptors(CacheInterceptor)
-@Controller('api/building')
+@Controller('api/v1/building')
 export class BuildingController {
   constructor(private readonly buildingService: BuildingService) {}
 
@@ -36,7 +36,7 @@ export class BuildingController {
     type: [CreateBuildingDto],
   })
   @Roles(Role.Admin, Role.ProjectManagement)
-  @Post('create-building')
+  @Post()
   async createBuilding(@Req() req: Request, @Body() data: CreateBuildingDto[]) {
     try {
       const result = await this.buildingService.create(data, req['user'].sub);
@@ -79,7 +79,7 @@ export class BuildingController {
     enum: ['next', 'prev'],
   })
   @Roles(Role.Admin, Role.ProjectManagement)
-  @Get('building-list')
+  @Get()
   async getAllBuilding(
     @Query()
     query: PaginationBuildingDto,
@@ -102,7 +102,7 @@ export class BuildingController {
   }
 
   @Roles(Role.Admin, Role.ProjectManagement)
-  @Patch('update-building/:id')
+  @Patch(':id')
   async updateBuilding(
     @Req() req: Request,
     @Param('id') id: string,
@@ -129,7 +129,7 @@ export class BuildingController {
   }
 
   @Roles(Role.Admin, Role.ProjectManagement)
-  @Delete('delete-building/:id')
+  @Delete(':id')
   async deleteById(@Req() req: Request, @Param('id') id: string) {
     try {
       const result = await this.buildingService.deleteById(id);
@@ -170,7 +170,7 @@ export class BuildingController {
   }
 
   @Roles(Role.Admin, Role.ProjectManagement)
-  @Get('building-detail/:id')
+  @Get(':id')
   async detail(@Req() req: Request, @Param('id') id: string) {
     try {
       const result = await this.buildingService.buildingDetail(id);

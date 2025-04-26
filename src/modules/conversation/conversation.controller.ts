@@ -17,11 +17,11 @@ import { ConversationList } from './dto/conversation-list.dto';
 @ApiTags('conversation')
 @UseGuards(AuthGuard)
 @UseInterceptors(CacheInterceptor)
-@Controller('api/conversation')
+@Controller('api/v1/conversation')
 export class ConversationController {
   constructor(private readonly conversationService: ConversationService) {}
 
-  @Get('conversation-list')
+  @Get()
   async getConversation(@Req() req: Request) {
     try {
       const conversations =

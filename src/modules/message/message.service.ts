@@ -53,7 +53,7 @@ export class MessageService {
       .set({
         message_text: data.message_text,
       })
-      .where(eq(schemas.message.id, data.conversation_id));
+      .where(eq(schemas.message.id, data.id));
   }
 
   async deleteMessage(ids: string[]): Promise<QueryResult<never>> {

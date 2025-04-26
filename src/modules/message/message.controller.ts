@@ -7,7 +7,7 @@ import { MessageService } from './message.service';
 
 @ApiBearerAuth()
 @ApiTags('message')
-@Controller('api/message')
+@Controller('api/v1/message')
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 

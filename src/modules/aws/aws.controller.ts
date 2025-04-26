@@ -9,7 +9,7 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { AwsService } from './aws.service';
 
 @ApiTags('aws')
-@Controller('api/aws')
+@Controller('api/v1/aws')
 export class AwsController {
   constructor(private readonly appService: AwsService) {}
 

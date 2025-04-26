@@ -234,13 +234,21 @@ export class ChatGateWay implements OnModuleInit {
         throw new Error('Invalid chat data.');
       }
       const result = await this.messageService.updateMessage(body);
-      if (result.rowCount >= 1) {
+      if (result.rowCount > 0) {
         this.server.to(body.conversation_id).emit(SocketEvents.MESSAGE, {
-          data: result,
+          data: {
+            id: body.id,
+            messageText: body.message_text,
+          },
           status: 'success',
         });
-
-        responseSocket(socket, SocketEvents.MESSAGE, 'success', result);
+      } else {
+        responseSocket(
+          socket,
+          SocketEvents.MESSAGE,
+          'failed',
+          'This message not change',
+        );
       }
     } catch (error) {
       responseSocket(socket, SocketEvents.MESSAGE, 'failed', error.message);

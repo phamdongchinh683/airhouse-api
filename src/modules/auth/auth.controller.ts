@@ -24,7 +24,7 @@ import { AuthUpdateInfoDto } from './dto/auth.update-info.dto';
 import { AuthUpdatePasswordDto } from './dto/auth.update-password.dto';
 
 @ApiTags('auth')
-@Controller('api/auth')
+@Controller('api/v1/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -215,7 +215,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Get('user-list')
+  @Get()
   async getAllUsers() {
     try {
       const result = await this.authService.getUsers();
