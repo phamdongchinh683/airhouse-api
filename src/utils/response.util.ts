@@ -3,9 +3,10 @@ import { Response } from 'express';
 export function responseStatus(
   res: Response,
   statusCode: number,
+  status: 'success' | 'failed',
   message: string,
 ) {
-  return res.status(statusCode).json({ message: message });
+  return res.status(statusCode).json({ status: status, data: message });
 }
 
 export function responseSocket(

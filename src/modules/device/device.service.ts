@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
 import { QueryResult } from 'pg';
@@ -15,7 +14,6 @@ export class DeviceService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private database: NodePgDatabase<typeof schemas>,
-    private jwtService: JwtService,
   ) {}
 
   async createApprovedDevice(

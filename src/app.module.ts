@@ -24,20 +24,23 @@ import { MailModule } from './modules/mail/mail.module';
 import { MessageModule } from './modules/message/message.module';
 import { UserModule } from './modules/user/user.module';
 import { appProviders } from './providers/app.provider';
+import { DeviceModule } from './modules/device/device.module';
+
 dotenv.config({ debug: false });
 
 @Module({
   imports: [
+    configAppModule,
     CacheModule.registerAsync({
       isGlobal: true,
       ...RedisOptions,
     }),
-    configAppModule,
     JwtConfig,
     UserModule,
     AuthModule,
     DrizzleModule,
     MailModule,
+    DeviceModule,
     AwsModule,
     ConversationModule,
     MessageModule,
@@ -52,8 +55,8 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
     consumer.apply(ForgotPasswordMiddleware).forRoutes({
-      path: 'api/auth/forgot-password',
-      method: RequestMethod.POST,
+      path: 'api/v1/auth/forgot-password',
+      method: RequestMethod.PATCH,
     });
   }
 }

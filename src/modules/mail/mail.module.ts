@@ -8,9 +8,10 @@ import { MailService } from './mail.service';
       transport: {
         host: process.env.MAIL_HOST,
         secure: false,
+        port: 2525,
         auth: {
           user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASS,
+          pass: process.env.MAIL_PASSWORD,
         },
       },
     }),

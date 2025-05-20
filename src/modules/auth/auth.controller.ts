@@ -70,7 +70,7 @@ export class AuthController {
       );
     }
   }
-  @Post('forgot-password')
+  @Patch('forgot-password')
   @ApiBody({
     description: 'Email address for password reset, handled by middleware.',
     schema: {
@@ -107,6 +107,7 @@ export class AuthController {
   @Get('profile')
   @UseGuards(AuthGuard)
   async profile(@Req() req: Request) {
+    console.log('this call');
     try {
       const result = await this.authService.userDetailById(req['user'].sub);
       return new ResponseData<AuthDetailDto>(
@@ -215,7 +216,7 @@ export class AuthController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Get()
+  @Get('users')
   async getAllUsers() {
     try {
       const result = await this.authService.getUsers();

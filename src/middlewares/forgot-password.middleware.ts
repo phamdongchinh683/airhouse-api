@@ -10,7 +10,7 @@ export class ForgotPasswordMiddleware implements NestMiddleware {
     const { email } = req.body;
     const result = await this.authService.findEmail(email);
     if (result.length === 0) {
-      return responseStatus(res, 400, 'This email not exist');
+      return responseStatus(res, 400, 'failed', 'This email not exist');
     } else {
       req['email'] = email;
       next();

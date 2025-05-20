@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres/driver';
 import { QueryResult } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DrizzleAsyncProvider } from 'src/providers/drizzle.provider';
 import * as schemas from '../../schema/schema';
 import { MessageCreationDto } from './dto/message.creation.dto';
+import { MessageDeleteDto } from './dto/message.delete.dto';
 import { MessageHistoryDto } from './dto/message.history.dto';
 import { MessageUpdateDto } from './dto/message.update.dto';
 
@@ -56,9 +57,14 @@ export class MessageService {
       .where(eq(schemas.message.id, data.id));
   }
 
-  async deleteMessage(ids: string[]): Promise<QueryResult<never>> {
+  async deleteMessage(data: MessageDeleteDto): Promise<QueryResult<never>> {
     return await this.database
       .delete(schemas.message)
-      .where(inArray(schemas.message.id, ids));
+      .where(
+        and(
+          eq(schemas.message.id, data.id),
+          eq(schemas.message.conversation_id, data.conversationId),
+        ),
+      );
   }
 }

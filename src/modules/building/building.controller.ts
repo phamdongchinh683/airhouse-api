@@ -1,4 +1,3 @@
-import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -10,7 +9,6 @@ import {
   Query,
   Req,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -27,7 +25,6 @@ import { UpdateBuildingDto } from './dto/update-building.dto';
 @ApiBearerAuth()
 @ApiTags('building')
 @UseGuards(AuthGuard, RolesGuard) // apply authentication authorization for controller this
-@UseInterceptors(CacheInterceptor)
 @Controller('api/v1/building')
 export class BuildingController {
   constructor(private readonly buildingService: BuildingService) {}
@@ -38,6 +35,7 @@ export class BuildingController {
   @Roles(Role.Admin, Role.ProjectManagement)
   @Post()
   async createBuilding(@Req() req: Request, @Body() data: CreateBuildingDto[]) {
+    console.log(data);
     try {
       const result = await this.buildingService.create(data, req['user'].sub);
       return new ResponseData<any>(

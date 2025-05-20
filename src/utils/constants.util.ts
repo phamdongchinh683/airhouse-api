@@ -10,3 +10,7 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 export const accessKeyAws: string = process.env.AWS_ACCESS_KEY;
 export const secretKeyAws: string = process.env.AWS_SECRET_KEY;
 export const bucketName: string = process.env.AWS_BUCKET_NAME;
+export const mailHost: string = process.env.MAIL_HOST;
+export const mailUser: string = process.env.MAIL_USER;
+export const mailPass: string = process.env.MAIL_PASS;
+export const mailPort: string = process.env.MAIL_PORT;

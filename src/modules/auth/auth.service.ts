@@ -148,14 +148,12 @@ export class AuthService {
 
   async updatePasswordByEmail(email: string): Promise<string> {
     const newPassword = randomPassword();
-
     const hashNewPassword = await hashPassword(newPassword);
     const updateQuery = await this.database
       .update(schemas.user)
       .set({ password: hashNewPassword })
       .where(eq(schemas.user.email, email));
-
-    if (updateQuery.rowCount >= 1) {
+    if (updateQuery.rowCount > 0) {
       await this.mailService.sendNewPassword(newPassword, email);
       return 'New password has been sent to your email';
     } else {

@@ -264,16 +264,20 @@ export class ChatGateWay implements OnModuleInit {
       if (!body) {
         throw new Error('Invalid chat data.');
       }
-      const result = await this.messageService.deleteMessage(body.ids);
+      const result = await this.messageService.deleteMessage(body);
       if (result.rowCount > 0) {
         this.server.to(body.conversationId).emit(SocketEvents.MESSAGE, {
           status: 'success',
+          data: {
+            id: body.id,
+          },
         });
+      } else {
         responseSocket(
           socket,
           SocketEvents.MESSAGE,
-          'success',
-          'A few message deleted',
+          'failed',
+          'This message deleted before or not exist',
         );
       }
     } catch (error) {

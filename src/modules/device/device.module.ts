@@ -6,5 +6,6 @@ import { DeviceService } from './device.service';
 @Module({
   controllers: [DeviceController],
   providers: [DeviceService, drizzleProvider],
+  exports: [DeviceService],
 })
 export class DeviceModule {}
